@@ -10,7 +10,7 @@
             ref="input" 
             v-model="input" 
             persistent-hint 
-            hint="enter a number or operator" 
+            hint="enter a number or operator, or 'q' to close the console" 
             @keyup.enter="submit(input)"
           )
 </template>
@@ -23,87 +23,81 @@ export default {
     output: [],
     numbers: [],
     operators: ["+", "-", "/", "*"],
-    error: "please enter a number or operator",
+    defaultError: "please enter a number or operator",
     closed: false
   }),
   computed: {
     numbersLength(){
       return this.numbers.length; 
     },
-    scrollBoxHeight(){
-      return document.getElementById("output").scrollHeight;
-    }
   },
   methods: {
     // FIRST, WE REPEAT THE INPUT TO THE USER
     submit(input){
       this.appendOutput("> " + input)
-      this.checkNotNull(input)
+      this.validateInput(input)
     },
 
-    // SECOND, WE WANNA MAKE SURE WE DON'T HAVE AN EMPTY ENTRY
-    checkNotNull(input){
+    // SECOND, WE WANNA VALIDATE THE ENTRY--MAKE SURE ITS NOT EMPTY
+    validateInput(input){
+      //make sure we got something
       if (input == null){
-        this.appendOutput(this.error)
-      } else { 
-        this.verifyInput(input)
-      }
-    },
+        this.appendOutput(this.defaultError)
+        return;
+      } 
 
-    //THIRD MAKE SURE WE'VE BEEN GIVEN A VALID NUMBER OR OPERATOR--THESE TWO STEPS COULD BE COMPILED INTO ONE FUNCTION
-    verifyInput(input){
+      //close the console on command
       if (input == 'q'){
         this.closeOut()
         return;
       }
 
-      if(input.includes(" ")){ 
-        this.splitInput(input)
-      } else if(isNaN(Number(input)) && !this.operators.includes(input)) {
-        this.appendOutput(this.error);
-        return;
-      } else {
-        this.determineFunction(input)
-      }
+      this.parseInput(input)
     },
 
-    //THIRD(A): IF WE HAVE MULTIPLE ENTRIES, WE SPLIT THE INPUT AND HANDLE THEM INDIVIDUALLY
-    splitInput(input){
+    //THIRD(A): PARSE THE ENTRY
+    parseInput(input){
       let arr = input.split(" ")
       let ops = []
 
+      // figure out what to do with each input. 
       arr.forEach(i => {
         if (this.operators.includes(i)){
           ops.push(i)
+        } else if(!isNaN(parseInt(i))) {
+          i = parseInt(i)
+          this.addNumberToArray(i);
         } else {
-          let ii = parseInt(i)
-          this.addNumberToArray(ii);
-          return;
+          this.appendOutput(this.defaultError)
         }
       })
-      if(ops.length) { this.performMath(ops[ops.length - 1]) }
+      
+      //make sure we only pay attention the last operator we received
+      if(ops.length) { 
+        let operator = ops[ops.length - 1]
+        this.performMath(operator) 
+        }
     },
 
-    // FOURTH, FIGURE OUT WHAT TO DO WITH THE INPUT FROM HERE. IF WE RECEIVE AN OPERATOR, WE ATTEMPT SOME MATH!
-    determineFunction(input){
-      this.operators.includes(input) ? this.performMath(input) : this.addNumberToArray(Number(input))
-    },
-
-    //FIFTH(A), ADD THE NUMBER TO OUR ARRAY, WHICH WE WILL USE TO CALCULATE.
+    //FOURTH, ADD THE NUMBER TO OUR ARRAY, WHICH WE WILL USE TO DO MATH.
     addNumberToArray(number){
+      //make sure we never have more than 2 numbers stored in our array
       if (this.numbersLength >= 2) { this.numbers.shift(); }
+     
       this.numbers.push(number)
+      
       this.appendOutput(number)
     },
 
-    //FIFTH(B), IF EVERYTHING GOES RIGHT, WE DO THAT MATH
+    //FIFTH, IF EVERYTHING GOES RIGHT, WE DO THAT MATH
     performMath(operator){
       if(this.numbersLength < 2){
+        this.appendOutput("insufficient numbers to perform operator")
         return;
       }
 
-      let num1 = this.numbers[this.numbersLength - 2]
-      let num2 = this.numbers[this.numbersLength - 1]
+      let num1 = this.numbers[0]
+      let num2 = this.numbers[1]
 
       let result;
       switch(operator) {
