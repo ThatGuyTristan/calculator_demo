@@ -18,8 +18,9 @@ This is a basic RPN(Reverse Polish Notation) Calculator built using VueJs. It us
 Trade-offs and caveats include:
   + Using a CSS hack/trick to get the console to report input from bottom to top. Code includes 
   +   ``` #output { ... overflow: auto; display: flex; flex-direction: column-reverse; ... } ```
-  +   where #output is the ID for the console output div
+  +   where `#output` is the ID for the console output div
 
+Entering an input of 'q' will disable the input field. This is done to simulate the closing of an actual terminal. 
 
 ## Project setup
 ```
