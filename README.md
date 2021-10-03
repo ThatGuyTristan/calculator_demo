@@ -1,26 +1,28 @@
 # calculator_demo
 
-This is a basic RPN(Reverse Polish Notation) Calculator built using VueJs. It uses Vuetify to simulate a console-like interface in the browser. It accepts an input of numbers and/or operators, and then executes the last operator received on the last two inputs available. The result of any given operation is treated as an input. For example:
+This is a basic RPN(Reverse Polish Notation) Calculator built using VueJs. It uses Vuetify to simulate a console-like interface in the browser. It accepts an input of numbers and operators, and will return errors for invalid input. 
 
+Errors will be rendered into the console when:
++ A null input is entered
++ An input other than a number or operator is entered
++ An operation is attempted with insufficient operands
+
+When a number is encountered, we add that number to a Stack, respresented by an array. When an operator is encountered, we take the last two items in the stack and perform that operator on them. The result is then added to the top of the stack, represented by the end of the array.
+
+For example:
+``` 
+input> 1 2 3 * 
+6
 ```
-> 5 // first input
-5
-> 10 // second input 
-10
-> - // first operator
--5 // first result
-> 5
-5
-> +
-0 // final result: -5 + 5 = 0
-```
+Breaking down the previous expression input would like something like:
++ Adding the first three numbers to our array: ```[1, 2, 3]```
++ And then executing the multiply operator on our first two items: ```3 * 2 = 6``` 
++ Finally, we add our result back to our array: ```[1, 6]```
 
-Trade-offs and caveats include:
-  + Using a CSS hack/trick to get the console to report input from bottom to top. Code includes 
-  +   ``` #output { ... overflow: auto; display: flex; flex-direction: column-reverse; ... } ```
-  +   where `#output` is the ID for the console output div
-
-Entering an input of 'q' will disable the input field. This is done to simulate the closing of an actual terminal. 
+Other notes:
++ Entries on the same line must be separated by a space.
++ Entering an input of 'clear' will clear the stack and the console.
++ Entering an input of 'q' will disable the input field. This is done to simulate the closing of an actual terminal. 
 
 ## Project setup
 ```
@@ -30,17 +32,3 @@ yarn install
 ### Compiles and hot-reloads for development
 ```
 yarn serve
-```
-
-### Compiles and minifies for production
-```
-yarn build
-```
-
-### Lints and fixes files
-```
-yarn lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
