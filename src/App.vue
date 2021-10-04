@@ -65,11 +65,15 @@ export default {
     parseInput(input){ 
       let arr = input.split(" ");
 
-      this.detectForeignInput(arr);
       this.countOperators(arr);
 
       arr.forEach(el =>  {
-        this.determineOperation(el);
+        if(this.detectForeignInput(el)) { 
+          this.appendOutput("foreign character detected. aborting operation");
+          return;
+        } else {
+          this.determineOperation(el);
+        }
       })
     },
 
@@ -121,6 +125,7 @@ export default {
     appendOutput(ammendment){
       this.output.push(ammendment); 
       this.input = null;
+      this.updateScroll();
     },
 
     // CHECKING TO SEE IF SOMETHING IS AN OPERATOR. . . 
@@ -138,13 +143,8 @@ export default {
     },
 
     // IF WE GET A FOREIGN INPUT, THROW AN ERROR
-    detectForeignInput(arr){
-      for(let el in arr) {
-        if(!this.isAnOperator(arr[el]) && !this.isAnOperand(arr[el])){
-          this.appendOutput(this.defaultError);
-          return;
-        }
-      }
+    detectForeignInput(el){
+      return (!this.isAnOperator(el) && !this.isAnOperand(el))
     },
 
     // RESET THE INPUT AND OUTPUT
@@ -162,7 +162,12 @@ export default {
     closeOut(){
       this.closed = true;
       this.appendOutput('console closed');
-      }
+    },
+
+    updateScroll(){
+      let box = document.getElementById("output");
+      box.scrollTop = box.scrollHeight;
+    }
   },
 
   // FOCUS THE INPUT BAR BY DEFAULT
